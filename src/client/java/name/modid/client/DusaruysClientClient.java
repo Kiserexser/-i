@@ -1,10 +1,33 @@
 package name.modid.client;
 
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.util.InputUtil;
+import org.lwjgl.glfw.GLFW;
+import name.modid.gui.ClickGuiScreen;
 
 public class DusaruysClientClient implements ClientModInitializer {
-	@Override
-	public void onInitializeClient() {
-		// This entrypoint is suitable for setting up client-specific logic, such as rendering.
-	}
+
+    @Override
+    public void onInitializeClient() {
+        // Регистрация клавиши для открытия ClickGUI (правый Shift)
+        KeyBinding keyBinding = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key.dusaruysclient.clickgui",
+                InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_RIGHT_SHIFT,
+                "category.dusaruysclient"
+        ));
+
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            if (keyBinding.wasPressed()) {
+                if (client.currentScreen instanceof ClickGuiScreen) {
+                    client.setScreen(null);
+                } else {
+                    client.setScreen(new ClickGuiScreen());
+                }
+            }
+        });
+    }
 }
